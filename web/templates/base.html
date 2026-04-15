@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Avala Group Tube{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { primary: '#3b82f6', secondary: '#8b5cf6' } } }
+        }
+    </script>
+    <style>
+        /* ── Body & background ─────────────────────────── */
+        body {
+            background-color: #050d1a;
+            background-image:
+                radial-gradient(ellipse at 12% 18%, rgba(59,130,246,0.11) 0%, transparent 48%),
+                radial-gradient(ellipse at 88% 82%, rgba(139,92,246,0.11) 0%, transparent 48%);
+        }
+
+        /* ── Glass card ────────────────────────────────── */
+        .card {
+            background: rgba(10, 20, 38, 0.75);
+            border: 1px solid rgba(51, 65, 85, 0.55);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s, transform 0.25s;
+        }
+        .card:hover { border-color: rgba(99,102,241,0.3); box-shadow: 0 8px 36px rgba(59,130,246,0.07), 0 2px 10px rgba(0,0,0,0.35); }
+        .card-lift:hover { transform: translateY(-3px); }
+
+        /* ── Gradient text ─────────────────────────────── */
+        .text-gradient {
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 55%, #f472b6 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .text-gradient-blue {
+            background: linear-gradient(135deg, #60a5fa, #818cf8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        /* ── Buttons ───────────────────────────────────── */
+        .btn-blue {
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            box-shadow: 0 4px 18px rgba(59,130,246,0.28);
+            transition: all 0.3s;
+        }
+        .btn-blue:hover { background: linear-gradient(135deg, #2563eb, #4f46e5); box-shadow: 0 6px 24px rgba(59,130,246,0.38); transform: translateY(-1px); }
+
+        .btn-purple {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            box-shadow: 0 4px 18px rgba(139,92,246,0.28);
+            transition: all 0.3s;
+        }
+        .btn-purple:hover { background: linear-gradient(135deg, #7c3aed, #db2777); box-shadow: 0 6px 24px rgba(139,92,246,0.38); transform: translateY(-1px); }
+
+        .btn-ghost { background: rgba(30,41,59,0.7); border: 1px solid rgba(51,65,85,0.6); transition: all 0.3s; }
+        .btn-ghost:hover { background: rgba(51,65,85,0.7); }
+
+        /* ── Icon badges ───────────────────────────────── */
+        .ib-blue   { background: linear-gradient(135deg,#3b82f6,#2563eb); box-shadow: 0 4px 14px rgba(59,130,246,0.35); }
+        .ib-green  { background: linear-gradient(135deg,#10b981,#059669); box-shadow: 0 4px 14px rgba(16,185,129,0.35); }
+        .ib-purple { background: linear-gradient(135deg,#8b5cf6,#6d28d9); box-shadow: 0 4px 14px rgba(139,92,246,0.35); }
+        .ib-amber  { background: linear-gradient(135deg,#f59e0b,#d97706); box-shadow: 0 4px 14px rgba(245,158,11,0.35); }
+        .ib-red    { background: linear-gradient(135deg,#ef4444,#dc2626); box-shadow: 0 4px 14px rgba(239,68,68,0.35); }
+        .ib-cyan   { background: linear-gradient(135deg,#06b6d4,#0891b2); box-shadow: 0 4px 14px rgba(6,182,212,0.35); }
+
+        /* ── Inputs ─────────────────────────────────────── */
+        .input-dark {
+            background: rgba(5,13,26,0.85);
+            border: 1px solid rgba(51,65,85,0.65);
+            border-radius: 0.75rem;
+            color: #e2e8f0;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .input-dark:focus { outline: none; border-color: rgba(59,130,246,0.55); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+
+        /* ── Animations ─────────────────────────────────── */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in   { animation: fadeUp 0.45s ease both; }
+        .fade-in-1 { animation: fadeUp 0.45s 0.08s ease both; }
+        .fade-in-2 { animation: fadeUp 0.45s 0.18s ease both; }
+        .fade-in-3 { animation: fadeUp 0.45s 0.28s ease both; }
+
+        @keyframes pulseDot { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.4); opacity:0.6; } }
+        .pulse-dot { animation: pulseDot 2s ease-in-out infinite; }
+
+        @keyframes pulseSlow { 0%,100% { opacity:1; } 50% { opacity:0.45; } }
+        .animate-pulse-slow { animation: pulseSlow 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+
+        /* ── Scrollbar ──────────────────────────────────── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(10,18,32,0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.45); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,0.65); }
+
+        /* ── Nav active pill ────────────────────────────── */
+        .nav-active { background: rgba(59,130,246,0.14); color: #93c5fd !important; border-radius: 0.5rem; }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-40 border-b border-slate-800/70" style="background: rgba(5,13,26,0.85); backdrop-filter: blur(16px);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo + desktop links -->
+                <div class="flex items-center">
+                    <a href="{{ url_for('dashboard') }}" class="flex items-center gap-2.5 mr-8 flex-shrink-0">
+                        <div class="w-8 h-8 rounded-lg ib-blue flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <span class="text-lg font-extrabold text-gradient whitespace-nowrap">Avala Group Tube</span>
+                    </a>
+                    <div class="hidden sm:flex sm:items-center sm:space-x-1">
+                        <a href="{{ url_for('dashboard') }}"  class="{% if request.endpoint == 'dashboard' %}nav-active{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %} px-3 py-2 rounded-lg text-sm font-medium transition-all">Dashboard</a>
+                        <a href="{{ url_for('temas') }}"      class="{% if request.endpoint == 'temas' %}nav-active{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %} px-3 py-2 rounded-lg text-sm font-medium transition-all">Temas Cortos</a>
+                        <a href="{{ url_for('noticias') }}"   class="{% if request.endpoint == 'noticias' %}nav-active{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %} px-3 py-2 rounded-lg text-sm font-medium transition-all">Noticias</a>
+                        <a href="{{ url_for('galeria') }}"    class="{% if request.endpoint == 'galeria' %}nav-active{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %} px-3 py-2 rounded-lg text-sm font-medium transition-all">Galería</a>
+                        <a href="{{ url_for('config_page') }}" class="{% if request.endpoint == 'config_page' %}nav-active{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %} px-3 py-2 rounded-lg text-sm font-medium transition-all">Configuración</a>
+                    </div>
+                </div>
+                <!-- Hamburger (mobile) -->
+                <div class="flex items-center sm:hidden">
+                    <button id="mobileMenuBtn" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800/60 transition">
+                        <svg id="iconMenu"  class="w-6 h-6"        fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        <svg id="iconClose" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden sm:hidden border-t border-slate-800/60">
+            <div class="px-4 py-3 space-y-1">
+                <a href="{{ url_for('dashboard') }}"  class="{% if request.endpoint == 'dashboard' %}bg-blue-500/14 text-blue-300{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %} block px-3 py-2 rounded-lg text-sm font-medium transition">Dashboard</a>
+                <a href="{{ url_for('temas') }}"      class="{% if request.endpoint == 'temas' %}bg-blue-500/14 text-blue-300{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %} block px-3 py-2 rounded-lg text-sm font-medium transition">Temas Cortos</a>
+                <a href="{{ url_for('noticias') }}"   class="{% if request.endpoint == 'noticias' %}bg-blue-500/14 text-blue-300{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %} block px-3 py-2 rounded-lg text-sm font-medium transition">Noticias</a>
+                <a href="{{ url_for('galeria') }}"    class="{% if request.endpoint == 'galeria' %}bg-blue-500/14 text-blue-300{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %} block px-3 py-2 rounded-lg text-sm font-medium transition">Galería</a>
+                <a href="{{ url_for('config_page') }}" class="{% if request.endpoint == 'config_page' %}bg-blue-500/14 text-blue-300{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %} block px-3 py-2 rounded-lg text-sm font-medium transition">Configuración</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/50 mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+            <p class="text-center text-slate-600 text-sm">
+                <span class="text-gradient font-semibold">Avala Group Tube</span> — Generador Masivo de Videos con IA © 2026
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu    = document.getElementById('mobileMenu');
+        const iconMenu      = document.getElementById('iconMenu');
+        const iconClose     = document.getElementById('iconClose');
+        mobileMenuBtn.addEventListener('click', () => {
+            const open = !mobileMenu.classList.contains('hidden');
+            mobileMenu.classList.toggle('hidden', open);
+            iconMenu.classList.toggle('hidden', !open);
+            iconClose.classList.toggle('hidden', open);
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

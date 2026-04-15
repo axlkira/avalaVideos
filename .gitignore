@@ -1,0 +1,53 @@
+# Archivos multimedia generados (no necesarios en git)
+*.mp4
+*.mp3
+*.wav
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.avif
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Outputs de la aplicación
+output/
+*.srt
+*.csv
+*.log
+
+# Modelos y archivos grandes (si existen)
+*.gguf
+*.safetensors
+*.pth
+*.pt
+*.ckpt
+*.bin
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+
+#claude
+.claude/

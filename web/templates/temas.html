@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Temas Cortos - Avala Group Tube{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center fade-in">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gradient-blue">Temas Cortos</h1>
+            <p class="text-slate-500 mt-1 text-sm">Genera videos virales de 40-50 segundos con IA</p>
+        </div>
+        <a href="{{ url_for('dashboard') }}" class="text-slate-500 hover:text-slate-300 transition text-sm flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Volver
+        </a>
+    </div>
+
+    <!-- Info Card -->
+    <div class="fade-in-1" style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:1rem;padding:1rem 1.25rem">
+        <div class="flex gap-3 items-start">
+            <div class="w-8 h-8 rounded-lg ib-blue flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="text-sm">
+                <p class="font-semibold text-blue-400 mb-1.5">Instrucciones</p>
+                <ul class="space-y-1 text-slate-400">
+                    <li>• Un tema por línea · Las líneas con <code class="bg-slate-800 px-1 rounded text-xs">#</code> se ignoran</li>
+                    <li>• Cada tema genera un video independiente en su propia carpeta</li>
+                    <li>• Ejemplo: <em class="text-slate-300">"la ansiedad y ejercicios para combatirla"</em></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form id="temasForm" class="space-y-5 fade-in-2">
+
+        <!-- Estilo Visual -->
+        <div class="card p-5">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">🎨 Estilo Visual</label>
+            <select id="estiloSelect" name="estilo" class="input-dark w-full p-3 text-sm">
+                <option value="">Cargando estilos...</option>
+            </select>
+            <p class="text-xs text-slate-500 mt-2 leading-relaxed" id="estiloPreview">Selecciona un estilo para ver la descripción</p>
+        </div>
+
+        <!-- Textarea -->
+        <div class="card p-5">
+            <div class="flex justify-between items-center mb-3">
+                <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Temas (uno por línea)</label>
+                <span id="autosaveIndicator" class="text-xs text-emerald-400 font-medium opacity-0 transition-opacity duration-500 flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    Guardado
+                </span>
+            </div>
+            <textarea
+                id="temasContent" name="content" rows="14"
+                class="input-dark w-full p-4 text-sm font-mono leading-relaxed resize-y"
+                placeholder="# Tus temas aquí&#10;la ansiedad y ejercicios para combatirla&#10;5 datos curiosos sobre el cerebro humano&#10;la historia del chocolate"
+            >{{ temas_content }}</textarea>
+            <div class="flex items-center justify-between mt-2.5">
+                <p class="text-xs text-slate-600">
+                    <span id="lineCount" class="text-slate-400 font-semibold">0</span> líneas ·
+                    <span id="themeCount" class="text-blue-400 font-semibold">0</span> temas detectados
+                </p>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3">
+            <button type="submit" class="btn-blue flex-1 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Procesar Temas
+            </button>
+            <button type="button" id="btnLimpiar" class="btn-ghost text-slate-300 px-5 py-3 rounded-xl font-semibold text-sm">
+                Limpiar
+            </button>
+        </div>
+    </form>
+
+    <!-- Ejemplos -->
+    <div class="card p-5 fade-in-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Ejemplos de temas</h3>
+        <div class="space-y-2">
+            <button onclick="addExample(this.textContent)" class="btn-ghost w-full text-left px-4 py-3 rounded-xl text-sm text-slate-300 hover:text-white transition">
+                ¿A que no sabías que los relámpagos crean diamantes diminutos al golpear la arena?
+            </button>
+            <button onclick="addExample(this.textContent)" class="btn-ghost w-full text-left px-4 py-3 rounded-xl text-sm text-slate-300 hover:text-white transition">
+                el sonido no puede viajar en el espacio vacío
+            </button>
+            <button onclick="addExample(this.textContent)" class="btn-ghost w-full text-left px-4 py-3 rounded-xl text-sm text-slate-300 hover:text-white transition">
+                el agua caliente puede congelarse más rápido que el agua fría
+            </button>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ── Estilos ─────────────────────────────────────────────────────────
+let estilosData = [];
+async function cargarEstilos() {
+    try {
+        const res = await fetch('/api/estilos');
+        estilosData = await res.json();
+        const select = document.getElementById('estiloSelect');
+        select.innerHTML = estilosData.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('');
+        select.value = 'narrativo';
+        actualizarPreviewEstilo();
+    } catch { document.getElementById('estiloSelect').innerHTML = '<option value="narrativo">Narrativo (default)</option>'; }
+}
+function actualizarPreviewEstilo() {
+    const sel = estilosData.find(e => e.id === document.getElementById('estiloSelect').value);
+    if (sel) document.getElementById('estiloPreview').textContent = sel.preview;
+}
+document.getElementById('estiloSelect').addEventListener('change', actualizarPreviewEstilo);
+cargarEstilos();
+
+// ── Contadores + autosave ────────────────────────────────────────────
+const textarea  = document.getElementById('temasContent');
+const DRAFT_KEY = 'temas_draft';
+let saveTimer;
+
+function updateCounts() {
+    const lines  = textarea.value.split('\n');
+    const themes = lines.filter(l => l.trim() && !l.trim().startsWith('#'));
+    document.getElementById('lineCount').textContent  = lines.length;
+    document.getElementById('themeCount').textContent = themes.length;
+}
+function showSaved() {
+    localStorage.setItem(DRAFT_KEY, textarea.value);
+    const ind = document.getElementById('autosaveIndicator');
+    ind.style.opacity = '1';
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { ind.style.opacity = '0'; }, 2200);
+}
+textarea.addEventListener('input', () => { updateCounts(); showSaved(); });
+
+if (!textarea.value.trim()) {
+    const d = localStorage.getItem(DRAFT_KEY);
+    if (d) textarea.value = d;
+}
+updateCounts();
+
+// ── Limpiar ──────────────────────────────────────────────────────────
+document.getElementById('btnLimpiar').addEventListener('click', () => {
+    if (!textarea.value.trim()) return;
+    if (confirm('¿Eliminar todos los temas? El borrador guardado también se borrará.')) {
+        textarea.value = '';
+        localStorage.removeItem(DRAFT_KEY);
+        updateCounts();
+    }
+});
+
+// ── Ejemplos ─────────────────────────────────────────────────────────
+function addExample(text) {
+    const cur = textarea.value;
+    textarea.value = cur + (cur ? '\n' : '') + text.trim();
+    updateCounts();
+    showSaved();
+}
+
+// ── Submit ────────────────────────────────────────────────────────────
+document.getElementById('temasForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const content = textarea.value.trim();
+    if (!content) { alert('Por favor escribe al menos un tema'); return; }
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Iniciando...';
+
+    try {
+        const res = await fetch('/api/start', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ mode: 'temas', content, estilo: document.getElementById('estiloSelect').value })
+        });
+        if (res.ok) { window.location.href = '/progreso'; }
+        else {
+            const err = await res.json();
+            alert('Error: ' + err.error);
+            btn.disabled = false;
+            btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Procesar Temas';
+        }
+    } catch (err) { alert('Error de conexión: ' + err.message); btn.disabled = false; }
+});
+</script>
+{% endblock %}

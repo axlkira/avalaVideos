@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}Galería - Avala Group Tube{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-wrap justify-between items-center gap-4 fade-in">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gradient">Galería de Videos</h1>
+            <p class="text-slate-500 mt-1 text-sm">{{ videos|length }} videos generados</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <select id="filterType" class="input-dark px-4 py-2 text-sm">
+                <option value="all">Todos los tipos</option>
+                <option value="tema">Temas</option>
+                <option value="noticia">Noticias</option>
+            </select>
+            <select id="sortOrder" class="input-dark px-4 py-2 text-sm">
+                <option value="newest">Más recientes</option>
+                <option value="oldest">Más antiguos</option>
+                <option value="largest">Mayor tamaño</option>
+            </select>
+        </div>
+    </div>
+
+    {% if videos %}
+    <!-- Videos Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 fade-in-1" id="videosGrid">
+        {% for video in videos %}
+        <div class="card card-lift overflow-hidden group video-card"
+             data-type="{{ video.tipo }}"
+             data-size="{{ video.size_mb }}"
+             data-created="{{ video.created }}">
+
+            <!-- Video Preview -->
+            <div class="aspect-[9/16] relative overflow-hidden bg-slate-950">
+                <video
+                    class="absolute inset-0 w-full h-full object-cover"
+                    src="/api/download/{{ video.video_path }}"
+                    preload="none" muted loop playsinline
+                    onmouseenter="this.play().catch(()=>{})"
+                    onmouseleave="this.pause(); this.currentTime=0"
+                ></video>
+                <!-- Play overlay -->
+                <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-300 group-hover:opacity-0 pointer-events-none"
+                     style="background:rgba(5,13,26,0.55)">
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center"
+                         style="background:rgba(255,255,255,0.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.18)">
+                        <svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                </div>
+                <!-- Badge tipo -->
+                <div class="absolute top-3 left-3">
+                    <span class="px-2.5 py-1 text-xs font-bold rounded-lg" style="backdrop-filter:blur(8px);{% if video.tipo == 'tema' %}background:rgba(59,130,246,0.75){% else %}background:rgba(139,92,246,0.75){% endif %}">
+                        {{ video.tipo|capitalize }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Info -->
+            <div class="p-4">
+                <!-- Título + botones copiar -->
+                <div class="flex items-start justify-between gap-2 mb-1">
+                    <h3 class="font-bold text-base text-white leading-snug line-clamp-2 flex-1">{{ video.titulo or video.folder }}</h3>
+                    <div class="flex-shrink-0 mt-0.5 flex gap-1">
+                    {% if video.titulo %}
+                    <button onclick="copiar('{{ video.folder }}', 'titulo', this)"
+                            title="Copiar título"
+                            class="p-1.5 rounded-lg text-slate-500 hover:text-blue-400 transition btn-ghost">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                    </button>
+                    <button onclick="copiar('{{ video.folder }}', 'metadata', this)"
+                            title="Copiar metadatos completos (título + descripción + etiquetas)"
+                            class="p-1.5 rounded-lg text-slate-500 hover:text-emerald-400 transition btn-ghost">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </button>
+                    {% endif %}
+                    </div>
+                </div>
+
+                <p class="text-xs text-slate-500 mb-3 line-clamp-2">{{ video.tema }}</p>
+                <div class="flex items-center gap-3 text-xs text-slate-600 mb-4">
+                    <span>{{ video.size_mb }} MB</span>
+                    <span class="w-1 h-1 rounded-full bg-slate-700"></span>
+                    <span>{{ video.created }}</span>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-2">
+                    <a href="/api/download/{{ video.video_path }}" download
+                       class="btn-blue flex-1 text-white px-3 py-2 rounded-lg text-xs font-bold text-center flex items-center justify-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        Descargar
+                    </a>
+                    <button onclick="verDetalles('{{ video.folder }}')"
+                            class="btn-ghost px-3 py-2 rounded-lg text-slate-400 hover:text-white text-xs transition" title="Ver metadatos completos">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="card p-16 text-center fade-in-1">
+        <div class="w-20 h-20 rounded-3xl ib-blue flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+        </div>
+        <h3 class="text-2xl font-extrabold text-white mb-2">Sin videos aún</h3>
+        <p class="text-slate-500 mb-8">Crea tu primer video para verlo aquí</p>
+        <div class="flex gap-4 justify-center">
+            <a href="{{ url_for('temas') }}" class="btn-blue text-white px-6 py-2.5 rounded-xl font-bold text-sm">Crear desde Temas</a>
+            <a href="{{ url_for('noticias') }}" class="btn-purple text-white px-6 py-2.5 rounded-xl font-bold text-sm">Crear desde Noticias</a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Modal de metadatos -->
+<div id="detallesModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.78);backdrop-filter:blur(5px)">
+    <div class="card max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl" style="border-color:rgba(99,102,241,0.3)">
+        <div class="p-6">
+            <!-- Modal header -->
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Metadatos para YouTube
+                </h3>
+                <button onclick="cerrarModal()" class="text-slate-500 hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <!-- Contenido del modal -->
+            <div id="modalContent" class="space-y-4"></div>
+
+            <!-- Botón copiar todo -->
+            <div class="mt-5 pt-4 border-t" style="border-color:rgba(51,65,85,0.4)">
+                <button onclick="copiarTodo()" class="btn-blue w-full text-white py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    Copiar todo (título + descripción + etiquetas)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast de copiado -->
+<div id="toast" class="fixed bottom-6 right-6 z-50 hidden items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold shadow-2xl"
+     style="background:rgba(16,185,129,0.9);color:white;backdrop-filter:blur(8px)">
+    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    <span id="toastMsg">¡Copiado!</span>
+</div>
+
+<!-- Datos de metadatos (JSON seguro) -->
+<script>
+const videosMetadata = {
+    {% for video in videos %}
+    {{ video.folder|tojson }}: {
+        titulo:      {{ video.titulo|tojson }},
+        descripcion: {{ video.descripcion|tojson }},
+        etiquetas:   {{ video.etiquetas|tojson }},
+        tipo:        {{ video.tipo|tojson }},
+        folder:      {{ video.folder|tojson }},
+        size:        {{ video.size_mb|tojson }},
+        created:     {{ video.created|tojson }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+};
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ── Filtro y orden ─────────────────────────────────────────────────
+const filterType = document.getElementById('filterType');
+const sortOrder  = document.getElementById('sortOrder');
+const grid       = document.getElementById('videosGrid');
+
+function aplicar() {
+    if (!grid) return;
+    const tipo  = filterType ? filterType.value : 'all';
+    const orden = sortOrder  ? sortOrder.value  : 'newest';
+    const cards = Array.from(grid.querySelectorAll('.video-card'));
+
+    cards.forEach(c => { c.style.display = (tipo === 'all' || c.dataset.type === tipo) ? '' : 'none'; });
+
+    const vis = cards.filter(c => c.style.display !== 'none');
+    vis.sort((a, b) => {
+        if (orden === 'largest') return parseFloat(b.dataset.size) - parseFloat(a.dataset.size);
+        if (orden === 'oldest')  return a.dataset.created.localeCompare(b.dataset.created);
+        return b.dataset.created.localeCompare(a.dataset.created);
+    });
+    vis.forEach(c => grid.appendChild(c));
+}
+if (filterType) filterType.addEventListener('change', aplicar);
+if (sortOrder)  sortOrder.addEventListener('change', aplicar);
+
+// ── Copiar al portapapeles ─────────────────────────────────────────
+let toastTimer;
+
+function mostrarToast(msg = '¡Copiado!') {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    toast.classList.remove('hidden');
+    toast.classList.add('flex');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+    }, 2200);
+}
+
+async function copiarTexto(texto, msg) {
+    try {
+        await navigator.clipboard.writeText(texto);
+        mostrarToast(msg || '¡Copiado!');
+    } catch {
+        // Fallback para navegadores sin clipboard API
+        const ta = document.createElement('textarea');
+        ta.value = texto;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        mostrarToast(msg || '¡Copiado!');
+    }
+}
+
+// Botón de copiar en la tarjeta
+function copiar(folder, campo, btn) {
+    const meta = videosMetadata[folder];
+    if (!meta) return;
+
+    let texto;
+    let mensaje;
+
+    if (campo === 'metadata') {
+        // Copiar título + descripción + etiquetas formateados para YouTube
+        texto = `${meta.titulo || ''}\n\n${meta.descripcion || ''}\n\n${meta.etiquetas || ''}`.trim();
+        mensaje = 'Metadatos copiados';
+    } else {
+        texto = meta[campo];
+        mensaje = `Título copiado`;
+    }
+
+    copiarTexto(texto, mensaje);
+
+    // Feedback visual en el botón
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<svg class="w-3.5 h-3.5 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
+    setTimeout(() => { btn.innerHTML = orig; }, 1800);
+}
+
+// ── Modal ──────────────────────────────────────────────────────────
+const modal = document.getElementById('detallesModal');
+let modalFolder = null;
+
+function verDetalles(folder) {
+    const m = videosMetadata[folder];
+    if (!m) return;
+    modalFolder = folder;
+
+    const esTema  = m.tipo === 'tema';
+    const badgeStyle = esTema
+        ? 'background:rgba(59,130,246,0.2);color:#93c5fd'
+        : 'background:rgba(139,92,246,0.2);color:#c4b5fd';
+
+    document.getElementById('modalContent').innerHTML = `
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem">
+            <span style="${badgeStyle};padding:0.2rem 0.65rem;border-radius:9999px;font-size:0.7rem;font-weight:700">
+                ${m.tipo.charAt(0).toUpperCase()+m.tipo.slice(1)}
+            </span>
+            <span style="color:#475569;font-size:0.7rem">${m.folder} · ${m.size} MB · ${m.created}</span>
+        </div>
+
+        ${metaBloque('Título', m.titulo, folder, 'titulo', '📋 Copiar título')}
+        ${metaBloque('Descripción', m.descripcion, folder, 'descripcion', '📋 Copiar descripción', true)}
+        ${metaBloque('Etiquetas', m.etiquetas, folder, 'etiquetas', '📋 Copiar etiquetas')}
+    `;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function metaBloque(label, texto, folder, campo, btnLabel, preformated = false) {
+    if (!texto) return `<div style="background:rgba(5,13,26,0.7);border:1px solid rgba(51,65,85,0.5);border-radius:0.75rem;padding:0.875rem">
+        <p style="font-size:0.7rem;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem">${label}</p>
+        <p style="font-size:0.8rem;color:#475569;font-style:italic">Sin datos</p>
+    </div>`;
+
+    const preview = preformated
+        ? `<pre style="font-size:0.75rem;color:#cbd5e1;white-space:pre-wrap;word-break:break-word;line-height:1.55;max-height:7rem;overflow:hidden;margin:0">${escapeHtml(texto)}</pre>`
+        : `<p style="font-size:0.85rem;color:#cbd5e1;line-height:1.5">${escapeHtml(texto)}</p>`;
+
+    return `
+        <div style="background:rgba(5,13,26,0.7);border:1px solid rgba(51,65,85,0.5);border-radius:0.75rem;padding:0.875rem">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+                <p style="font-size:0.7rem;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.05em">${label}</p>
+                <button onclick="copiarModal('${folder}','${campo}','${btnLabel}')"
+                        style="font-size:0.7rem;color:#6366f1;font-weight:600;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);padding:0.2rem 0.6rem;border-radius:0.5rem;cursor:pointer;transition:all 0.2s"
+                        onmouseover="this.style.background='rgba(99,102,241,0.2)'"
+                        onmouseout="this.style.background='rgba(99,102,241,0.1)'">
+                    ${btnLabel}
+                </button>
+            </div>
+            ${preview}
+        </div>
+    `;
+}
+
+function copiarModal(folder, campo, msg) {
+    const m = videosMetadata[folder];
+    if (!m) return;
+    copiarTexto(m[campo], msg.replace('📋 ', '') + ' copiada');
+}
+
+function copiarTodo() {
+    if (!modalFolder) return;
+    const m = videosMetadata[modalFolder];
+    if (!m) return;
+    const todo = `${m.titulo}\n\n${m.descripcion}\n\n${m.etiquetas}`;
+    copiarTexto(todo, '¡Todo copiado para YouTube!');
+}
+
+function cerrarModal() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    modalFolder = null;
+}
+modal.addEventListener('click', e => { if (e.target === modal) cerrarModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModal(); });
+
+function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+</script>
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Configuración - Avala Group Tube{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold">Configuración</h1>
+            <p class="text-slate-400 mt-1">Ajusta los parámetros del sistema</p>
+        </div>
+        <a href="{{ url_for('dashboard') }}" class="text-slate-400 hover:text-white transition">
+            ← Volver
+        </a>
+    </div>
+
+    <!-- Warning -->
+    <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
+        <div class="flex gap-3">
+            <svg class="w-6 h-6 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <div class="text-sm">
+                <p class="font-medium text-yellow-400">Nota Importante:</p>
+                <p class="text-slate-300 mt-1">Los cambios en esta configuración requieren editar manualmente el archivo <code class="bg-slate-700 px-1 rounded">config.py</code>. Esta interfaz es solo para visualización.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Configuration -->
+    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+        <h2 class="text-xl font-bold mb-4">APIs y Servicios</h2>
+        <div class="space-y-4">
+            <!-- Gemini API Key -->
+            <div>
+                <label class="block text-sm font-medium mb-2">Gemini API Key</label>
+                <input 
+                    type="text" 
+                    value="{{ config.gemini_api_key }}" 
+                    readonly
+                    class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-slate-400 cursor-not-allowed"
+                >
+                <p class="text-xs text-slate-500 mt-1">Variable de entorno: GEMINI_API_KEY</p>
+            </div>
+
+            <!-- ComfyUI URL -->
+            <div>
+                <label class="block text-sm font-medium mb-2">ComfyUI URL</label>
+                <input 
+                    type="text" 
+                    value="{{ config.comfyui_url }}" 
+                    readonly
+                    class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-slate-400 cursor-not-allowed"
+                >
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Configuration -->
+    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+        <h2 class="text-xl font-bold mb-4">Configuración de Imagen</h2>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium mb-2">Ancho (px)</label>
+                <input 
+                    type="number" 
+                    value="{{ config.image_width }}" 
+                    readonly
+                    class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-slate-400 cursor-not-allowed"
+                >
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2">Alto (px)</label>
+                <input 
+                    type="number" 
+                    value="{{ config.image_height }}" 
+                    readonly
+                    class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-slate-400 cursor-not-allowed"
+                >
+            </div>
+        </div>
+        <p class="text-xs text-slate-500 mt-2">Dimensiones actuales: {{ config.image_width }}×{{ config.image_height }} (Vertical para YouTube Shorts)</p>
+    </div>
+
+    <!-- Voice Configuration -->
+    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+        <h2 class="text-xl font-bold mb-4">Configuración de Voz</h2>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-2">Voz TTS</label>
+                <input 
+                    type="text" 
+                    value="{{ config.tts_voice }}" 
+                    readonly
+                    class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-slate-400 cursor-not-allowed"
+                >
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-2">Modelo Whisper</label>
+                <input 
+                    type="text" 
+                    value="{{ config.whisper_model }}" 
+                    readonly
+                    class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-slate-400 cursor-not-allowed"
+                >
+            </div>
+        </div>
+    </div>
+
+    <!-- Style Configuration -->
+    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+        <h2 class="text-xl font-bold mb-4">Estilo de Imagen</h2>
+        <div>
+            <label class="block text-sm font-medium mb-2">Estilo Base</label>
+            <textarea 
+                rows="4" 
+                readonly
+                class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-slate-400 cursor-not-allowed font-mono text-sm"
+            >{{ config.estilo_base }}</textarea>
+            <p class="text-xs text-slate-500 mt-2">Para cambiar el estilo, edita ESTILO_BASE en config.py. Estilos disponibles en estilos_imagen.py</p>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+        <h2 class="text-xl font-bold mb-4">Cómo Editar la Configuración</h2>
+        <ol class="space-y-2 text-sm text-slate-300">
+            <li class="flex gap-2">
+                <span class="text-blue-400 font-bold">1.</span>
+                <span>Abre el archivo <code class="bg-slate-700 px-1 rounded">config.py</code> en tu editor de código</span>
+            </li>
+            <li class="flex gap-2">
+                <span class="text-blue-400 font-bold">2.</span>
+                <span>Modifica los valores que necesites cambiar</span>
+            </li>
+            <li class="flex gap-2">
+                <span class="text-blue-400 font-bold">3.</span>
+                <span>Guarda el archivo</span>
+            </li>
+            <li class="flex gap-2">
+                <span class="text-blue-400 font-bold">4.</span>
+                <span>Reinicia la aplicación Flask para aplicar los cambios</span>
+            </li>
+        </ol>
+    </div>
+
+    <!-- System Info -->
+    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+        <h2 class="text-xl font-bold mb-4">Información del Sistema</h2>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+            <div class="p-3 bg-slate-700/50 rounded-lg">
+                <p class="text-slate-400">Versión</p>
+                <p class="font-bold mt-1">TubeNauta V5</p>
+            </div>
+            <div class="p-3 bg-slate-700/50 rounded-lg">
+                <p class="text-slate-400">Modo</p>
+                <p class="font-bold mt-1">Producción Local</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

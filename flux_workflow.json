@@ -1,0 +1,316 @@
+{
+  "6": {
+    "inputs": {
+      "text": "\n  \"style\": \"Cinematic illustration with a high-definition, film-like quality, capturing each character in stunning detail with dramatic lighting, deep shadows, and a rich color palette. The characters are presented with perfect accuracy to their original appearances, but enhanced by cinematic techniques such as lens flares, soft focus, and rich textures.\",\n  \"subject\": \"Goku, Naruto, Joker, and Batman, dressed in modern, stylish outfits, walking together as friends into a dimly lit bar, each holding a beer. Goku wears a black, fitted t-shirt with silver accents, paired with dark, well-fitted jeans. Naruto wears a long, dark hoodie with the Konoha symbol, paired with sleek black jeans and boots. Joker dons a dark purple, tailored jacket with black pants and shoes, his green hair styled to perfection. Batman is in a perfectly fitted black leather jacket, black pants, and sleek boots, his stoic expression illuminated by cinematic lighting.\",\n  \"features\": \n    \"goku\": \"Goku is portrayed with a flawless, muscular build, his spiky hair styled perfectly as seen in 'Dragon Ball Z'. His black t-shirt and dark jeans are tailored for a modern, cinematic look, and his expression radiates intensity and focus, fitting perfectly within the high-end cinematic style.\",\n    \"naruto\": \"Naruto’s blond hair is styled with fine detail, his youthful face full of energy and determination. His long, dark hoodie fits him perfectly, and the modern, sleek outfit exudes an effortless coolness. His stance is confident, reflecting his adventurous spirit.\",\n    \"joker\": \"Joker's wild green hair contrasts with his flawless complexion. His dark purple jacket is tailored to perfection, with intricate details that stand out in the cinematic lighting. His mischievous grin adds to the cinematic feel, emphasizing his chaotic yet charming nature.\",\n    \"batman\": \"Batman is dressed in a sleek, black leather jacket that highlights his muscular frame. His face is stoic, with the cinematic lighting casting shadows that add depth to his expression. The perfect fit of his outfit and the intense, brooding atmosphere make him look like a character from a high-budget film.\"\n  ,\n  \"expression\": \"The characters' expressions capture a perfect balance between camaraderie and their individual personalities. Goku and Naruto are laughing, their faces illuminated by the warm light from the bar. Joker's grin is mischievous, while Batman’s serious demeanor contrasts the playfulness of the others, creating a perfect dynamic.\",\n  \"environment\": \"The bar is set in a cinematic, high-definition environment, with deep shadows and dramatic lighting. The lighting highlights the textures of the characters' outfits, casting subtle glows and reflections. The bar is filled with intricate details, from the worn wooden counters to the flickering candles and soft ambient lighting. The atmosphere is quiet yet tense, with the cinematic quality bringing the entire scene to life. The focus on the characters is sharp, with soft background blur creating a sense of depth.\"\n\n",
+      "clip": [
+        "129",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Positive Prompt)"
+    }
+  },
+  "10": {
+    "inputs": {
+      "vae_name": "flux2-vae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Cargar VAE"
+    }
+  },
+  "26": {
+    "inputs": {
+      "guidance": 4,
+      "conditioning": [
+        "6",
+        0
+      ]
+    },
+    "class_type": "FluxGuidance",
+    "_meta": {
+      "title": "FluxGuidance"
+    }
+  },
+  "38": {
+    "inputs": {
+      "clip_name": "qwen_3_8b_fp8mixed.safetensors",
+      "type": "flux2",
+      "device": "cpu"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "Cargar CLIP"
+    }
+  },
+  "52": {
+    "inputs": {
+      "unet_name": "flux-2-klein-9b-Q8_0.gguf"
+    },
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "Unet Loader (GGUF)"
+    }
+  },
+  "59": {
+    "inputs": {
+      "anything": [
+        "6",
+        0
+      ]
+    },
+    "class_type": "easy cleanGpuUsed",
+    "_meta": {
+      "title": "Clean VRAM Used"
+    }
+  },
+  "85": {
+    "inputs": {
+      "sage_attention": "auto",
+      "allow_compile": false,
+      "model": [
+        "119",
+        0
+      ]
+    },
+    "class_type": "PathchSageAttentionKJ",
+    "_meta": {
+      "title": "Patch Sage Attention KJ"
+    }
+  },
+  "86": {
+    "inputs": {
+      "enable_fp16_accumulation": true,
+      "model": [
+        "85",
+        0
+      ]
+    },
+    "class_type": "ModelPatchTorchSettings",
+    "_meta": {
+      "title": "Model Patch Torch Settings"
+    }
+  },
+  "97": {
+    "inputs": {
+      "noise": [
+        "100",
+        0
+      ],
+      "guider": [
+        "116",
+        0
+      ],
+      "sampler": [
+        "101",
+        0
+      ],
+      "sigmas": [
+        "102",
+        0
+      ],
+      "latent_image": [
+        "99",
+        0
+      ]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {
+      "title": "SamplerCustomAdvanced"
+    }
+  },
+  "98": {
+    "inputs": {
+      "samples": [
+        "97",
+        0
+      ],
+      "vae": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "Decodificación VAE"
+    }
+  },
+  "99": {
+    "inputs": {
+      "width": 1024,
+      "height": 1536,
+      "batch_size": 1
+    },
+    "class_type": "EmptyFlux2LatentImage",
+    "_meta": {
+      "title": "Empty Flux 2 Latent"
+    }
+  },
+  "100": {
+    "inputs": {
+      "noise_seed": 158615674572517
+    },
+    "class_type": "RandomNoise",
+    "_meta": {
+      "title": "Ruido aleatorio"
+    }
+  },
+  "101": {
+    "inputs": {
+      "sampler_name": "euler"
+    },
+    "class_type": "KSamplerSelect",
+    "_meta": {
+      "title": "KSamplerSelect"
+    }
+  },
+  "102": {
+    "inputs": {
+      "steps": 10,
+      "width": 1024,
+      "height": 1536
+    },
+    "class_type": "Flux2Scheduler",
+    "_meta": {
+      "title": "Flux2Scheduler"
+    }
+  },
+  "105": {
+    "inputs": {
+      "anything": [
+        "98",
+        0
+      ]
+    },
+    "class_type": "easy cleanGpuUsed",
+    "_meta": {
+      "title": "Clean VRAM Used"
+    }
+  },
+  "111": {
+    "inputs": {
+      "clip_name": "Qwen3-8B-Q8_0.gguf",
+      "type": "flux2",
+      "device": "default"
+    },
+    "class_type": "ClipLoaderGGUF",
+    "_meta": {
+      "title": "GGUF CLIP Loader"
+    }
+  },
+  "114": {
+    "inputs": {
+      "filename_prefix": "Flux2",
+      "images": [
+        "105",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Guardar Imagen"
+    }
+  },
+  "116": {
+    "inputs": {
+      "cfg": 1,
+      "model": [
+        "86",
+        0
+      ],
+      "positive": [
+        "26",
+        0
+      ],
+      "negative": [
+        "117",
+        0
+      ]
+    },
+    "class_type": "CFGGuider",
+    "_meta": {
+      "title": "GuíaCFG"
+    }
+  },
+  "117": {
+    "inputs": {
+      "conditioning": [
+        "6",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "Acondicionamiento Cero"
+    }
+  },
+  "119": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": false,
+        "lora": "None",
+        "strength": 1
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "123",
+        0
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)"
+    }
+  },
+  "122": {
+    "inputs": {
+      "unet_name": "flux-2-klein-4b.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Cargar Modelo de Difusión"
+    }
+  },
+  "123": {
+    "inputs": {
+      "select": 1,
+      "sel_mode": false,
+      "input1": [
+        "52",
+        0
+      ],
+      "input2": [
+        "122",
+        0
+      ]
+    },
+    "class_type": "ImpactSwitch",
+    "_meta": {
+      "title": "Switch (Any)"
+    }
+  },
+  "129": {
+    "inputs": {
+      "select": 1,
+      "sel_mode": false,
+      "input1": [
+        "111",
+        0
+      ],
+      "input2": [
+        "38",
+        0
+      ]
+    },
+    "class_type": "ImpactSwitch",
+    "_meta": {
+      "title": "Switch (Any)"
+    }
+  }
+}
