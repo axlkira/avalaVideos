@@ -20,27 +20,22 @@ import ollama
 from openai import OpenAI
 from pydub import AudioSegment, effects
 from pydub.effects import compress_dynamic_range
-import google.generativeai as genai
 from transformers import pipeline as hf_pipeline
 
 import time
 import re
 
 import google.api_core.exceptions
+from google import genai
+from google.genai import types
 
 from config import (
     GEMINI_API_KEY, GEMINI_MODEL, GEMINI_TTS_MODEL, OLLAMA_MODEL,
     TTS_VOICE, TTS_LANGUAGE_INSTRUCTION, WHISPER_MODEL, WHISPER_LANGUAGE
 )
 
-# ─── Clientes ─────────────────────────────────────────────────────────────────
-_openai_client = OpenAI(
-    base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
-    api_key=GEMINI_API_KEY
-)
-
-genai.configure(api_key=GEMINI_API_KEY)
-_tts_model = genai.GenerativeModel(GEMINI_TTS_MODEL)
+# ─── Cliente Gemini (nueva API) ───────────────────────────────────────────────
+_gemini_client = genai.Client(api_key=GEMINI_API_KEY)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -49,10 +44,11 @@ _tts_model = genai.GenerativeModel(GEMINI_TTS_MODEL)
 
 def chat_gemini(mensaje: str) -> str | None:
     try:
-        respuesta = _openai_client.chat.completions.create(
+        response = _gemini_client.models.generate_content(
             model=GEMINI_MODEL,
-            messages=[{"role": "user", "content": mensaje}]
-        ).choices[0].message.content
+            contents=mensaje
+        )
+        respuesta = response.text
         if respuesta and "</think>" in respuesta:
             respuesta = respuesta.split("</think>", 1)[1]
         return respuesta.strip()
@@ -101,24 +97,23 @@ def limpiar_linea(texto: str) -> str:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def generar_audio_tts(guion: str, max_retries: int = 5) -> AudioSegment:
-    config_tts = {
-        "response_modalities": ["AUDIO"],
-        "speech_config": {
-            "voice_config": {
-                "prebuilt_voice_config": {
-                    "voice_name": TTS_VOICE
-                }
-            }
-        }
-    }
-    
     for attempt in range(max_retries):
         try:
-            respuesta = _tts_model.generate_content(
+            response = _gemini_client.models.generate_content(
+                model=GEMINI_TTS_MODEL,
                 contents=TTS_LANGUAGE_INSTRUCTION + guion,
-                generation_config=config_tts
+                config=types.GenerateContentConfig(
+                    response_modalities=["AUDIO"],
+                    speech_config=types.SpeechConfig(
+                        voice_config=types.VoiceConfig(
+                            prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                                voice_name=TTS_VOICE
+                            )
+                        )
+                    )
+                )
             )
-            datos = respuesta.candidates[0].content.parts[0].inline_data.data
+            datos = response.candidates[0].content.parts[0].inline_data.data
             buffer = BytesIO()
             with wave.open(buffer, "wb") as wf:
                 wf.setnchannels(1)

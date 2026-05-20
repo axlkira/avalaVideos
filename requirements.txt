@@ -1,0 +1,21 @@
+# TubeNauta V5 - Dependencias principales
+# Instalar con: pip install -r requirements.txt
+
+# Google Gemini API (nueva versión)
+google-genai>=0.2.0
+
+# IA y ML
+ollama>=0.1.0
+torch>=2.0.0
+transformers>=4.30.0
+
+# Audio
+pydub>=0.25.1
+
+# Utilidades
+pandas>=2.0.0
+numpy>=1.24.0
+requests>=2.32.2
+
+# Web (opcional, solo si usas el frontend)
+Flask==3.0.0

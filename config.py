@@ -15,8 +15,8 @@ FLUX_WORKFLOW = BASE_DIR / "flux_workflow.json"
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 # ─── Modelos de IA ────────────────────────────────────────────────────────────
-GEMINI_MODEL = "gemini-2.5-flash"
-GEMINI_TTS_MODEL = "gemini-2.5-flash-preview-tts"
+GEMINI_MODEL = "gemini-3.5-flash"
+GEMINI_TTS_MODEL = "gemini-3.1-flash-tts-preview"
 OLLAMA_MODEL = "gemma3:4b"
 
 # ─── ComfyUI / Flux ──────────────────────────────────────────────────────────
